@@ -19,7 +19,8 @@ HHDBPATH="/cbscratch/mmirdit/databases"
 MMDIR="/cbscratch/mmirdit/uniclust/pipeline/mmseqs"
 PATH="$MMDIR/bin:$MMDIR/util:$PATH"
 
-HHLIB="/cbscratch/mmirdit/uniclust/pipeline/hh-suite"
+#HHLIB="/cbscratch/mmirdit/uniclust/pipeline/hh-suite"
+HHLIB="/home/pjarnot/repo/github/hh-suite"
 PATH="$HHLIB/bin:$HHLIB/scripts:$PATH"
 
 HHDB="${SCRIPTPATH}/hhdatabase"

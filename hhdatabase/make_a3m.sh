@@ -10,7 +10,7 @@ function make_a3m() {
 
 	#build a3m's
     export OMP_NUM_THREADS=1
-	mpirun -npernode 16 --bind-to none ffindex_apply_mpi -d ${OUTPUT}.ffdata -i ${OUTPUT}.ffindex ${INPUT}.ff{data,index} -- fasta_to_msa_a3m.sh 1h 6000 1
+	mpirun -npernode 2 --bind-to none ffindex_apply_mpi -d ${OUTPUT}.ffdata -i ${OUTPUT}.ffindex ${INPUT}.ff{data,index} -- fasta_to_msa_a3m.sh 1h 6000 1
 
 	#remove presumably wrong clusters
 	grep "\s1$" ${OUTPUT}.ffindex | cut -f1 > ${TMPOUT}_misaligned_a3ms_0.dat
