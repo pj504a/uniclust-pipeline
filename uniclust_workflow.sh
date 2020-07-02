@@ -28,18 +28,19 @@ OUTDIR=$(abspath $OUTDIR)
 TMPPATH=$(abspath $TMPPATH)
 
 PREFILTER_COMMON="$COMMON"
-PREFILTER_FRAG_PAR="--max-seqs 4000 --min-ungapped-score 100 --comp-bias-corr 0  -s 1 ${PREFILTER_COMMON}"
-PREFILTER1_PAR="--max-seqs 100  -c 0.9 --comp-bias-corr 1 -s 2 ${PREFILTER_COMMON}"
-PREFILTER2_PAR="--max-seqs 300  -c 0.8 --comp-bias-corr 1 -s 6  ${PREFILTER_COMMON}"
+PREFILTER_FRAG_PAR=" --comp-bias-corr 0 --min-ungapped-score 100 -s 1 ${PREFILTER_COMMON}"
+PREFILTER1_PAR="  -c 0.9 --comp-bias-corr 0 -s 2 ${PREFILTER_COMMON}"
+PREFILTER2_PAR="  -c 0.8 --comp-bias-corr 0 -s 6  ${PREFILTER_COMMON}"
 ALIGNMENT_COMMON="$COMMON -e 0.001 --max-seq-len 32768 --max-rejected 2147483647"
-ALIGNMENT0_PAR="--max-seqs 100  -c 0.9 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 0 ${ALIGNMENT_COMMON}"
-ALIGNMENT1_PAR="--max-seqs 100 -c 0.8 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 1 ${ALIGNMENT_COMMON}"
-ALIGNMENT2_PAR="--max-seqs 300 -c 0.8 --alignment-mode 3 --min-seq-id 0.3 --comp-bias-corr 1 ${ALIGNMENT_COMMON}"
-CLUSTER_FRAG_PAR="--cluster-mode 2"
-CLUSTER0_PAR="--cluster-mode 2"
-CLUSTER1_PAR="--cluster-mode 0"
-CLUSTER2_PAR="--cluster-mode 0"
-SEARCH_PAR="$COMMON --profile --k-score 100"
+ALIGNMENT0_PAR="  -c 0.9 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 0 ${ALIGNMENT_COMMON}"
+ALIGNMENT1_PAR=" -c 0.8 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 0 ${ALIGNMENT_COMMON}"
+ALIGNMENT2_PAR=" -c 0.8 --alignment-mode 3 --min-seq-id 0.3 --comp-bias-corr 0 ${ALIGNMENT_COMMON}"
+CLUSTER_FRAG_PAR="--cluster-mode 2 --similarity-type 2"
+CLUSTER0_PAR="--cluster-mode 2 --similarity-type 2"
+CLUSTER1_PAR="--cluster-mode 0 --similarity-type 2"
+CLUSTER2_PAR="--cluster-mode 0 --similarity-type 2"
+SEARCH_PAR="$COMMON --k-score 100 --comp-bias-corr 0"
+#SEARCH_PAR="$COMMON --profile --k-score 100"
 CSTRANSLATE_PAR="-x 0.3 -c 4 -A $HHLIB/data/cs219.lib -D $HHLIB/data/context_data.lib -I ca3m -f -b"
 
 SEQUENCE_DB="$OUTDIR/uniprot_db"
@@ -52,7 +53,7 @@ STEP="_FRAG"
 INPUT="${SEQUENCE_DB}"
 $RUNNER mmseqs prefilter "$INPUT" "$INPUT" "$TMPPATH/pref_step$STEP" ${PREFILTER_FRAG_PAR}
 date --rfc-3339=seconds
-mmseqs rescorediagonal  "$INPUT" "$INPUT" "$TMPPATH/pref_step$STEP" "$TMPPATH/aln_step$STEP" --min-seq-id 0.9 --target-cov 0.95
+mmseqs rescorediagonal  "$INPUT" "$INPUT" "$TMPPATH/pref_step$STEP" "$TMPPATH/aln_step$STEP" --min-seq-id 0.9
 date --rfc-3339=seconds
 mmseqs clust $INPUT "$TMPPATH/aln_step$STEP" "$TMPPATH/clu_frag" ${CLUSTER_FRAG_PAR}
 date --rfc-3339=seconds
@@ -148,8 +149,9 @@ for i in 30 50 90; do
 
 	sed -i 's/\x0//g' "$TMPPATH/uniclust${i}_${RELEASE}_seed"
 
-	mmseqs summarizeheaders "${SEQUENCE_DB}_h" "${SEQUENCE_DB}_h" "$OUTDIR/uniclust${i}_${RELEASE}" "$TMPPATH/uniclust${i}_${RELEASE}_summary" --summary-prefix "uc${i}-${SHORTRELEASE}"
-	mmseqs mergedbs "$OUTDIR/uniclust${i}_$RELEASE" "$TMPPATH/uniclust${i}_${RELEASE}_consensus" "$TMPPATH/uniclust${i}_${RELEASE}_summary" "$TMPPATH/uniclust${i}_${RELEASE}_profile_consensus" --prefixes ">"
+	#mmseqs summarizeheaders "${SEQUENCE_DB}_h" "${SEQUENCE_DB}_h" "$OUTDIR/uniclust${i}_${RELEASE}" "$TMPPATH/uniclust${i}_${RELEASE}_summary"# --summary-prefix "uc${i}-${SHORTRELEASE}"
+    #cp $OUTDIR/uniclust${i}_${RELEASE} $TMPPATH/uniclust${i}_${RELEASE}_summary
+	mmseqs mergedbs "$OUTDIR/uniclust${i}_$RELEASE" "$TMPPATH/uniclust${i}_${RELEASE}_consensus" "$OUTDIR/uniclust${i}_${RELEASE}" "$TMPPATH/uniclust${i}_${RELEASE}_profile_consensus" --prefixes ">"
 	rm -f "$TMPPATH/uniclust${i}_${RELEASE}_consensus.index"
 	sed -i 's/\x0//g' "$TMPPATH/uniclust${i}_${RELEASE}_consensus"
 
@@ -175,8 +177,8 @@ RESULT="$TMPPATH/boost1/aln_boost"
 export OMP_PROC_BIND=true
 ## For each cluster generate an MSA with -qsc filter (score per column with query) of 0.0, 0.5 1.1.
 $RUNNER mmseqs result2msa "$INPUT" "$TARGET" "$RESULT" "$OUTDIR/uniboost10_${RELEASE}" --qsc 0.0 --compress
-mv "$OUTDIR/uniboost10_${RELEASE}_ca3m" "$OUTDIR/uniboost10_${RELEASE}_ca3m.ffdata"
-mv "$OUTDIR/uniboost10_${RELEASE}_ca3m.index" "$OUTDIR/uniboost10_${RELEASE}_ca3m.ffindex"
+#mv "$OUTDIR/uniboost10_${RELEASE}_ca3m" "$OUTDIR/uniboost10_${RELEASE}_ca3m.ffdata"
+#mv "$OUTDIR/uniboost10_${RELEASE}_ca3m.index" "$OUTDIR/uniboost10_${RELEASE}_ca3m.ffindex"
 
 awk '{ print $1 }' "${INPUT}.index" > "${INPUT}.list"
 mmseqs createsubdb "${INPUT}.list" "${INPUT}" "${INPUT}_small_h"
@@ -192,14 +194,23 @@ mpirun cstranslate_mpi ${CSTRANSLATE_PAR} -i "$OUTDIR/uniboost10_${RELEASE}" -o 
 $RUNNER mmseqs result2msa "$INPUT" "$TARGET" "$RESULT" "$OUTDIR/uniboost20_${RELEASE}" --qsc 0.5 --compress
 $RUNNER mmseqs result2msa "$INPUT" "$TARGET" "$RESULT" "$OUTDIR/uniboost30_${RELEASE}" --qsc 1.1 --compress
 
-for i in 20 30; do
-    mv -f "$OUTDIR/uniboost${i}_${RELEASE}_ca3m" "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.ffdata"
-    mv -f "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.index" "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.ffindex"
-done
+#for i in 20 30; do
+#    mv -f "$OUTDIR/uniboost${i}_${RELEASE}_ca3m" "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.ffdata"
+#    mv -f "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.index" "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.ffindex"
+#done
 
 for i in 10 20 30; do
-    ln -sf "${TMPPATH}/uniboost_${RELEASE}_cs219_binary.ffdata"  "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffdata"
-    ln -sf "${TMPPATH}/uniboost_${RELEASE}_cs219_binary.ffindex" "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffindex"
+    #ln -sf "${TMPPATH}/uniboost_${RELEASE}_cs219_binary.ffdata"  "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffdata"
+    #ln -sf "${TMPPATH}/uniboost_${RELEASE}_cs219_binary.ffindex" "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffindex"
+
+    cp "${TMPPATH}/uniboost_${RELEASE}_cs219.ffdata" "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffdata" 
+    cp "${TMPPATH}/uniboost_${RELEASE}_cs219.ffindex" "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffindex"
+
+    cp "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffdata" "${TMPPATH}/uniboost_${RELEASE}_cs219_binary.ffdata" 
+    cp "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffindex" "${TMPPATH}/uniboost_${RELEASE}_cs219_binary.ffindex"
+
+    cp "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffdata" "${OUTDIR}/uniboost${i}_${RELEASE}_cs219_binary.ffdata" 
+    cp "${OUTDIR}/uniboost${i}_${RELEASE}_cs219.ffindex" "${OUTDIR}/uniboost${i}_${RELEASE}_cs219_binary.ffindex"
     
     ffindex_build -as "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.ffdata" "$OUTDIR/uniboost${i}_${RELEASE}_ca3m.ffindex"
     ffindex_build -as "$OUTDIR/uniboost${i}_${RELEASE}_cs219.ffdata" "$OUTDIR/uniboost${i}_${RELEASE}_cs219.ffindex" 
