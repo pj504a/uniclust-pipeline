@@ -28,18 +28,18 @@ OUTDIR=$(abspath $OUTDIR)
 TMPPATH=$(abspath $TMPPATH)
 
 PREFILTER_COMMON="$COMMON"
-PREFILTER_FRAG_PAR="--max-seqs 4000 --min-ungapped-score 100 --comp-bias-corr 0  -s 1 ${PREFILTER_COMMON}"
-PREFILTER1_PAR="--max-seqs 100  -c 0.9 --comp-bias-corr 1 -s 2 ${PREFILTER_COMMON}"
-PREFILTER2_PAR="--max-seqs 300  -c 0.8 --comp-bias-corr 1 -s 6  ${PREFILTER_COMMON}"
+PREFILTER_FRAG_PAR="--min-ungapped-score 100 --comp-bias-corr 0  -s 1 ${PREFILTER_COMMON}"
+PREFILTER1_PAR="-c 0.9 --comp-bias-corr 1 -s 2 ${PREFILTER_COMMON}"
+PREFILTER2_PAR="-c 0.8 --comp-bias-corr 1 -s 6  ${PREFILTER_COMMON}"
 ALIGNMENT_COMMON="$COMMON -e 0.001 --max-seq-len 32768 --max-rejected 2147483647"
-ALIGNMENT0_PAR="--max-seqs 100  -c 0.9 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 0 ${ALIGNMENT_COMMON}"
-ALIGNMENT1_PAR="--max-seqs 100 -c 0.8 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 1 ${ALIGNMENT_COMMON}"
-ALIGNMENT2_PAR="--max-seqs 300 -c 0.8 --alignment-mode 3 --min-seq-id 0.3 --comp-bias-corr 1 ${ALIGNMENT_COMMON}"
+ALIGNMENT0_PAR="-c 0.9 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 0 ${ALIGNMENT_COMMON}"
+ALIGNMENT1_PAR="-c 0.8 --alignment-mode 2 --min-seq-id 0.9 --comp-bias-corr 1 ${ALIGNMENT_COMMON}"
+ALIGNMENT2_PAR="-c 0.8 --alignment-mode 3 --min-seq-id 0.3 --comp-bias-corr 1 ${ALIGNMENT_COMMON}"
 CLUSTER_FRAG_PAR="--cluster-mode 2"
 CLUSTER0_PAR="--cluster-mode 2"
 CLUSTER1_PAR="--cluster-mode 0"
 CLUSTER2_PAR="--cluster-mode 0"
-SEARCH_PAR="$COMMON --profile --k-score 100"
+SEARCH_PAR="$COMMON --k-score 100"
 CSTRANSLATE_PAR="-x 0.3 -c 4 -A $HHLIB/data/cs219.lib -D $HHLIB/data/context_data.lib -I ca3m -f -b"
 
 SEQUENCE_DB="$OUTDIR/uniprot_db"
@@ -52,7 +52,7 @@ STEP="_FRAG"
 INPUT="${SEQUENCE_DB}"
 $RUNNER mmseqs prefilter "$INPUT" "$INPUT" "$TMPPATH/pref_step$STEP" ${PREFILTER_FRAG_PAR}
 date --rfc-3339=seconds
-mmseqs rescorediagonal  "$INPUT" "$INPUT" "$TMPPATH/pref_step$STEP" "$TMPPATH/aln_step$STEP" --min-seq-id 0.9 --target-cov 0.95
+mmseqs rescorediagonal  "$INPUT" "$INPUT" "$TMPPATH/pref_step$STEP" "$TMPPATH/aln_step$STEP" --min-seq-id 0.9
 date --rfc-3339=seconds
 mmseqs clust $INPUT "$TMPPATH/aln_step$STEP" "$TMPPATH/clu_frag" ${CLUSTER_FRAG_PAR}
 date --rfc-3339=seconds
